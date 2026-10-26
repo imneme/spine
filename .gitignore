@@ -1,0 +1,8 @@
+# worked out from your ROM, and everything built: ./spine rom, ./spine build
+build/
+# made by ./spine tape (they carry the ROM's code)
+tapes/
+# this machine's tools
+paths.local
+__pycache__/
+*.pyc

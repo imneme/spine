@@ -1,0 +1,53 @@
+{
+ "kept": [
+  1541,
+  4535,
+  4770,
+  5461,
+  5469,
+  6133,
+  6137,
+  6935,
+  6952,
+  7023,
+  7030,
+  7050,
+  7070,
+  7090,
+  7091,
+  7103,
+  7121,
+  7150,
+  7156,
+  7181,
+  7199,
+  7202,
+  7246,
+  7289,
+  7318,
+  7387,
+  7408,
+  7427,
+  7660,
+  7719,
+  8032,
+  8137,
+  8329,
+  8992,
+  9090,
+  11266
+ ],
+ "why": {
+  "from": "state_strict.json (shrink on steps_all, --strict)",
+  "REM": "falls through (POP BC) into kept LINE_END: her CRT tape ran a REM and left by the ROM loop",
+  "CLASS_01": "falls through (CALL LOOK_VARS) into kept VAR_A_1: LET ran the ROM VAR_A_1",
+  "SAVE_ETC/LIST/DRAW (prefixes), DATA, LLIST": "their CALL CHECK_END: the ROM CHECK_END in syntax mode falls into the ROM loop (steps_syntax.txt)",
+  "CLASS_0B": "JP SAVE_ETC: the ROM one jumps to the ROM SAVE_ETC, past our prefix",
+  "REPORT_G": "MAIN_ADD pushes REPORT_G into the ERR_SP slot; the ROM REPORT_G does JP MAIN_G: No room for line went to the ROM main loop (reach.py)"
+ },
+ "prefix": {
+  "0605": "0731",
+  "17F9": "1825",
+  "2382": "2394"
+ }
+}

@@ -1,0 +1,2 @@
+TAPE:$AOC_ARCHIVE/AoC.2022/Dec14/aoc-14-comp.tap
+PRINT "SAND DONE"

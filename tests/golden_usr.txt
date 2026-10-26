@@ -1,0 +1,33 @@
+10 DEF FN h(x,y)=USR {FN_HYPOT}          K
+20 DEF FN r$(a$)=USR {FN_REV}            K
+30 DEF FN c()=USR {FN_YOURS}             K
+40 DEF FN c$()=USR {FN_YOURS}            K
+50 DEF FN g(x)=USR {FN_HYPOT}            K
+CLS: PRINT FN h(3,4);" ";FN h(1,1);" ";F 0 OK, still yours, 0:2
+  | 5 1.4142136 11
+  | 0 OK, still yours, 0:2
+CLS: PRINT FN r$("still yours");"|";FN r 0 OK, still yours, 0:2
+  | sruoy llits|!|3
+  | 0 OK, still yours, 0:2
+CLS: LET s$=FN r$("abc"): LET n=FN h(5,1 0 OK, still yours, 0:4
+  | cba 13 abc
+  | 0 OK, still yours, 0:4
+CLS: PRINT FN c();" ";FN c$();" ";USR {F 0 OK, still yours, 0:2
+  | 2026 still yours 2026
+  | 0 OK, still yours, 0:2
+CLS: PRINT FN r$(FN c$()+"!")            0 OK, still yours, 0:2
+  | !sruoy llits
+  | 0 OK, still yours, 0:2
+PRINT FN g(3)                            Q Parameter error, 0:1
+60 FOR i=1 TO 3: PRINT FN r$(STR$ FN h(i K
+CLS: RUN 60                              0 OK, still yours, 60:3
+  | 6312414.1
+  | 1724828.2
+  | 7046242.4
+  | 0 OK, still yours, 60:3
+CLS: LIST 60                             0 OK, still yours, 0:2
+  |   60>FOR i=1 TO 3: PRINT FN r$(S
+  | TR$ FN h(i,i)): NEXT i
+  | 0 OK, still yours, 0:2
+70 DEF FN q$(a)=3                        ? (refused: the flashing ?)
+the ROM loops never ran

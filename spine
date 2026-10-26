@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+"""spine: build SPINE, make its tapes, and check it.
+
+  ./spine rom                      work out build/rom.asm and friends from your ROM disassembly (paths.local)
+  ./spine build [MODULES] [-o NAME] [--org HEX] [--loose]
+                                   build/NAME.asm, .bin, .sym: the spine and the modules chosen
+  ./spine tape [MODULES] [-o DIR]  the tapes: loader + spine (+ the demo, and Fiddlehead, if the modules have
+                                   everything they use), each as .tap and .wav
+  ./spine check [--quick]          everything: builds, the static check, the real-ROM comparisons, the modules'
+                                   own transcripts, the tapes played through
+
+MODULES: everything by default (the batteries-included build), or --with a,b,c, or --without a,b, or --bare (none:
+the spine alone, which behaves exactly as the ROM does). The modules are src/modules/*.asm; README.md lists them."""
+import argparse
+import os
+import subprocess
+import sys
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import spinepaths as P                                              # noqa: E402
+
+MODDIR = os.path.join(ROOT, 'src', 'modules')
+ALL = ['move', 'erase', 'cat', 'format', 'guard', 'fnusr', 'fnusr-examples', 'stillyours', 'udg']
+NEEDS = {'fnusr-examples': ['fnusr']}
+DEMO_NEEDS = ['move', 'erase', 'cat', 'format', 'fnusr', 'fnusr-examples', 'stillyours', 'udg']
+TOOL = os.path.join(ROOT, 'tools')
+
+
+def run(*cmd, py=sys.executable, quiet=False, check=True):
+    r = subprocess.run([py, *cmd], cwd=ROOT, capture_output=quiet, text=True)
+    if check and r.returncode:
+        if quiet:
+            print(r.stdout + r.stderr)
+        sys.exit(f'spine: failed: {" ".join(os.path.basename(c) for c in cmd)}')
+    return r
+
+
+def modules(a):
+    if a.bare:
+        return []
+    ms = [m.strip() for m in a.with_.split(',')] if a.with_ else list(ALL)
+    if a.without:
+        ms = [m for m in ms if m not in [w.strip() for w in a.without.split(',')]]
+    for m in list(ms):
+        for n in NEEDS.get(m, []):
+            if n not in ms:
+                sys.exit(f'spine: {m} needs {n}')
+    unknown = [m for m in ms if m not in ALL]
+    if unknown:
+        sys.exit(f'spine: no such module: {", ".join(unknown)} (there are: {", ".join(ALL)})')
+    return [m for m in ALL if m in ms]                               # always in the same order
+
+
+def ensure_rom():
+    if not os.path.exists(P.built('routines.json')):
+        run(os.path.join(TOOL, 'mkrom.py'))
+
+
+def build(name, mods, org='E800', loose=False, quiet=False):
+    ensure_rom()
+    state = os.path.join(ROOT, 'src', 'states', 'loose.json' if loose else 'full.json')
+    asm = P.built(name + '.asm')
+    run(os.path.join(TOOL, 'build_spine.py'), state, asm, org, *sum((['--module', os.path.join(MODDIR, m + '.asm')]
+                                                                   for m in mods), []), quiet=quiet)
+    r = run(os.path.join(TOOL, 'assemble_spine.py'), asm, P.built(name + '.bin'), quiet=True)
+    if not quiet:
+        print(r.stdout.strip())
+    return P.built(name + '.bin')
+
+
+def tape(binf, mods, outdir):
+    os.makedirs(outdir, exist_ok=True)
+    demo = all(m in mods for m in DEMO_NEEDS)
+    run(os.path.join(TOOL, 'make_tape.py'), binf, os.path.join(ROOT, 'demo', 'demo.bas') if demo else '-',
+        os.path.join(ROOT, 'demo', 'fiddlehead.bas') if 'move' in mods else '-', outdir, py=P.OMSE_PY)
+    for t in sorted(os.listdir(outdir)):
+        if t.endswith('.tap'):
+            run(os.path.join(TOOL, 'tap2wav.py'), os.path.join(outdir, t), os.path.join(outdir, t[:-4] + '.wav'))
+    return demo
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+    sub = ap.add_subparsers(dest='cmd', required=True)
+    sub.add_parser('rom', help='work out build/ from your ROM disassembly')
+    for name in ('build', 'tape'):
+        p = sub.add_parser(name, help=f'{name} SPINE')
+        p.add_argument('--with', dest='with_', metavar='A,B', help='only these modules')
+        p.add_argument('--without', metavar='A,B', help='all but these modules')
+        p.add_argument('--bare', action='store_true', help='no modules: the spine alone')
+        p.add_argument('--org', default='E800', help='where it goes (hex; default E800, which makes E848)')
+        p.add_argument('--loose', action='store_true', help='the loose spine (control always comes home; statements '
+                       'may still run in the ROM\'s loop): 564 bytes')
+        p.add_argument('-o', dest='out', help='the build\'s name (build), or the tapes\' directory (tape)')
+    p = sub.add_parser('check', help='everything')
+    p.add_argument('--quick', action='store_true', help='skip the real-ROM comparisons (the slow part)')
+    a = ap.parse_args()
+    if a.cmd == 'rom':
+        run(os.path.join(TOOL, 'mkrom.py'))
+    elif a.cmd == 'build':
+        build(a.out or 'spine', modules(a), a.org, a.loose)
+    elif a.cmd == 'tape':
+        mods = modules(a)
+        binf = build('spine', mods, a.org, a.loose)
+        out = a.out or os.path.join(ROOT, 'tapes')
+        demo = tape(binf, mods, out)
+        print(f'tapes in {out}' + ('' if demo else ' (no demo: it uses ' + ', '.join(DEMO_NEEDS) + ')'))
+    else:
+        sys.exit(run(os.path.join(TOOL, 'check.py'), *(['--quick'] if a.quick else []), check=False).returncode)
+
+
+if __name__ == '__main__':
+    main()

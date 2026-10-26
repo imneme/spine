@@ -1,0 +1,12 @@
+{
+ "kept": [
+  4535,
+  4770,
+  5461,
+  5469
+ ],
+ "why": {
+  "from": "state.json (the loose shrink)",
+  "REPORT_G": "MAIN_ADD pushes REPORT_G into the ERR_SP slot; the ROM REPORT_G does JP MAIN_G: No room for line went to the ROM main loop (reach.py)"
+ }
+}

@@ -1,0 +1,16 @@
+# the better USR ({...} from the .sym)
+10 DEF FN h(x,y)=USR {FN_HYPOT}
+20 DEF FN r$(a$)=USR {FN_REV}
+30 DEF FN c()=USR {FN_YOURS}
+40 DEF FN c$()=USR {FN_YOURS}
+50 DEF FN g(x)=USR {FN_HYPOT}
+?CLS: PRINT FN h(3,4);" ";FN h(1,1);" ";FN h(3,4)*2+1
+?CLS: PRINT FN r$("still yours");"|";FN r$("")+"!";"|";LEN FN r$("abc")
+?CLS: LET s$=FN r$("abc"): LET n=FN h(5,12): PRINT s$;" ";n;" ";FN r$(s$)
+?CLS: PRINT FN c();" ";FN c$();" ";USR {FN_YOURS}
+?CLS: PRINT FN r$(FN c$()+"!")
+PRINT FN g(3)
+60 FOR i=1 TO 3: PRINT FN r$(STR$ FN h(i,i)): NEXT i
+?CLS: RUN 60
+?CLS: LIST 60
+70 DEF FN q$(a)=3

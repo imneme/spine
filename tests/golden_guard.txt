@@ -1,0 +1,25 @@
+CLEAR 65000                              M RAMTOP no good, 0:1
+CLEAR {FEATURES_END}                     M RAMTOP no good, 0:1
+CLEAR {SPINE_START}                      M RAMTOP no good, 0:1
+CLEAR {SPINE_START-1}                    0 OK, still yours, 0:1
+CLEAR 30000                              0 OK, still yours, 0:1
+POKE {(SPINE_START+FEATURES_END)//2},1   U Spine in the way, 0:1
+POKE {SPINE_START},1                     U Spine in the way, 0:1
+POKE {FEATURES_END-1},1                  U Spine in the way, 0:1
+POKE {SPINE_START-1},1                   0 OK, still yours, 0:1
+POKE {FEATURES_END},1                    0 OK, still yours, 0:1
+CLS: PRINT PEEK {SPINE_START}            0 OK, still yours, 0:2
+  | 177
+  | 0 OK, still yours, 0:2
+LOAD ""CODE                              0 OK, still yours, 0:1
+LOAD ""CODE                              U Spine in the way, 0:1
+LOAD ""CODE                              U Spine in the way, 0:1
+LOAD ""CODE                              0 OK, still yours, 0:1
+LOAD ""CODE 40000                        0 OK, still yours, 0:1
+CLS: PRINT PEEK 50009;" ";PEEK 40009;" " 0 OK, still yours, 0:2
+  | 9 9 9
+  | 0 OK, still yours, 0:2
+CLS: MOVE 10,10: PRINT PEEK 23677: CAT   0 OK, still yours, 0:4
+  | 10
+  | 0 OK, still yours, 0:4
+the ROM loops never ran

@@ -1,0 +1,13 @@
+01 boot           '© 1982 Sinclair Research Ltd  +?'
+02 title          'Press any key'
+03 move           'Press any key'
+04 cat            'Press any key'
+05 usr            'Press any key'
+06 break-me       'and SPACE. Then type CONTINUE.'
+07 broken         'L BREAK, still yours, 410:1'
+08 last           '0 OK, still yours, 540:1'
+09 erased         '0 OK, still yours, 0:2'
+10 formatted      '0 OK, still yours, 0:2'
+11 run            '9 STOP statement, 50:1'
+12 fiddlehead     '0 OK, still yours, 150:1'
+once the spine was up, the ROM loops never ran

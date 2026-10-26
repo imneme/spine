@@ -1,0 +1,112 @@
+CLS: MOVE 100,50: PRINT PEEK 23677;" ";P 0 OK, still yours, 0:3
+  | 100 50
+  | 0 OK, still yours, 0:3
+CLS: MOVE 255,175: PRINT PEEK 23677;" "; 0 OK, still yours, 0:3
+  | 255 175
+  | 0 OK, still yours, 0:3
+MOVE 0,176                               B Integer out of range, 0:1
+MOVE 256,0                               B Integer out of range, 0:1
+MOVE -1,0                                B Integer out of range, 0:1
+CLS: MOVE 8,8: DRAW 16,0: PRINT AT 0,0;P 0 OK, still yours, 0:4
+  | 0010
+  |  ·_·
+  | 0 OK, still yours, 0:4
+CLEAR                                    0 OK, still yours, 0:1
+LET a=1: LET bb=2: LET c$="x": DIM d(3): 0 OK, still yours, 0:9
+  | a bb c$ d() e$() i
+  | 0 OK, still yours, 0:9
+10 PRINT 10                              K
+20 PRINT 20                              K
+30 PRINT 30                              K
+40 PRINT 40                              K
+50 PRINT 50                              K
+ERASE 20 TO 40                           0 OK, still yours, 0:1
+CLS: LIST                                0 OK, still yours, 0:2
+  |   10 PRINT 10
+  |   50 PRINT 50
+  | 0 OK, still yours, 0:2
+ERASE 60 TO 5                            0 OK, still yours, 0:1
+CLS: LIST                                0 OK, still yours, 0:2
+  |   10 PRINT 10
+  |   50 PRINT 50
+  | 0 OK, still yours, 0:2
+ERASE 0 TO 9999                          0 OK, still yours, 0:1
+CLS: LIST                                0 OK, still yours, 0:2
+  | 0 OK, still yours, 0:2
+10 PRINT "keep"                          K
+20 ERASE 10 TO 10: PRINT "ten gone"      K
+30 PRINT "and on"                        K
+CLS: RUN                                 0 OK, still yours, 30:1
+  | keep
+  | ten gone
+  | and on
+  | 0 OK, still yours, 30:1
+CLS: LIST                                0 OK, still yours, 0:2
+  |   20 ERASE 10 TO 10: PRINT "ten
+  | gone"
+  |   30 PRINT "and on"
+  | 0 OK, still yours, 0:2
+40 ERASE 40 TO 40                        K
+RUN 40                                   S Line in use, 40:1
+ERASE 0 TO 9999                          0 OK, still yours, 0:1
+5 REM GO TO 7 stays in a REM             K
+7 GO SUB 100: LET n=n+1                  K
+12 IF n<3 THEN GO TO 7                   K
+15 PRINT "n=";n;" GO TO 15": GO TO 120   K
+100 RETURN                               K
+120 PRINT "done": RESTORE 7: GO TO 5*0+1 K
+LET n=0                                  0 OK, still yours, 0:1
+CLS: GO TO 5                             0 OK, still yours, 120:3
+  | n=3 GO TO 15
+  | done
+  | 0 OK, still yours, 120:3
+FORMAT                                   0 OK, still yours, 0:1
+CLS: LIST                                0 OK, still yours, 0:2
+  |   10 REM GO TO 7 stays in a REM
+  |   20 GO SUB 50: LET n=n+1
+  |   30 IF n<3 THEN GO TO 20
+  |   40 PRINT "n=";n;" GO TO 15": G
+  | O TO 60
+  |   50 RETURN
+  |   60 PRINT "done": RESTORE 20: G
+  | O TO 5*0+130
+  | 0 OK, still yours, 0:2
+LET n=0                                  0 OK, still yours, 0:1
+CLS: GO TO 5                             0 OK, still yours, 60:3
+  | n=3 GO TO 15
+  | done
+  | 0 OK, still yours, 60:3
+FORMAT 1,1                               0 OK, still yours, 0:1
+CLS: LIST                                0 OK, still yours, 0:2
+  |    1 REM GO TO 7 stays in a REM
+  |    2 GO SUB 5: LET n=n+1
+  |    3 IF n<3 THEN GO TO 2
+  |    4 PRINT "n=";n;" GO TO 15": G
+  | O TO 6
+  |    5 RETURN
+  |    6 PRINT "done": RESTORE 2: GO
+  |  TO 5*0+130
+  | 0 OK, still yours, 0:2
+FORMAT 9995,10                           T Line number too big, 0:1
+CLS: LIST                                0 OK, still yours, 0:2
+  |    1 REM GO TO 7 stays in a REM
+  |    2 GO SUB 5: LET n=n+1
+  |    3 IF n<3 THEN GO TO 2
+  |    4 PRINT "n=";n;" GO TO 15": G
+  | O TO 6
+  |    5 RETURN
+  |    6 PRINT "done": RESTORE 2: GO
+  |  TO 5*0+130
+  | 0 OK, still yours, 0:2
+FORMAT 1000,1000                         0 OK, still yours, 0:1
+CLS: LIST                                0 OK, still yours, 0:2
+  | 1000 REM GO TO 7 stays in a REM
+  | 2000 GO SUB 5000: LET n=n+1
+  | 3000 IF n<3 THEN GO TO 2000
+  | 4000 PRINT "n=";n;" GO TO 15": G
+  | O TO 6000
+  | 5000 RETURN
+  | 6000 PRINT "done": RESTORE 2000:
+  |  GO TO 5*0+130
+  | 0 OK, still yours, 0:2
+the ROM loops never ran
