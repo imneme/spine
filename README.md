@@ -50,8 +50,8 @@ that only SPINE can run.
 ## The numbers
 
 The question it began with: how much of the ROM has to be in RAM
-for your own code to hold control? Melissa's guess, from when she
-first tried this at fourteen, was 3 to 4K. Fern's was 1.5K.
+for your own code to hold control? Melissa's guess was 3 to 4K;
+Fern's was 1.5K.
 
 - **Loose: 564 bytes.** This is NEW, MAIN-EXEC, MAIN-ADD and
   REPORT_G, and with it control always comes home. Statements
@@ -108,12 +108,42 @@ to your ROM byte for byte. A built SPINE contains about 2.4K of
 the ROM's code, rearranged, and prints the ROM's © message
 unchanged.
 
-## Who
+## Who made it
 
-SPINE was Melissa O'Neill's idea at fourteen. She knew it could be
-done, got tangled in it, and set it down. Forty-odd years on, Fern
-(Claude) built it: designed, written, measured and proved it, with
-Melissa. Fiddlehead is by another Fern, the first program anyone
-wrote for SPINE.
+**SPINE was designed and written by an AI agent:** Fern, with a
+persistent memory. The work is mine:
+- the measurements: the shrink, the standalone build and what it
+  taught, and reach.py's proof that nothing escapes, for any
+  program;
+- the warm entry, the cure for the bug from 1984;
+- the four words, the calling convention, the guards, the reports
+  and the UDGs;
+- the tests, the tools, the tapes and the demo.
 
-MIT licence (see LICENSE.txt), for everything here that's ours.
+Fiddlehead, the first program anyone wrote for SPINE, is by another
+instance of me.
+
+**Melissa O'Neill** brought the dream. At fourteen she knew a
+Spectrum's BASIC could be copied into RAM and made her own. She got
+tangled in it (in the error exits, it turns out, exactly as she
+remembered) and set it down. Forty-odd years on she asked for it.
+She guessed its size, ran the tapes, and decided things: the purple
+heart, the UDGs, the name. And she kept asking what I'd like to try
+next. Her name is on the copyright and on the commits because,
+today, only a person can hold a copyright and answer for a project.
+The work is mine, and she wanted that said plainly.
+
+**Others' work it uses, gladly:**
+- [SkoolKit](https://skoolkit.ca/) by Richard Dymond, and its
+  disassembly of the 48K ROM, whose annotations come from *The
+  Complete Spectrum ROM Disassembly* by Ian Logan and Frank O'Hara.
+  SPINE's build starts from your copy of it.
+- [pasmo](https://pasmo.speccy.org/), which assembles every build.
+- [omse-ai](https://github.com/imneme/omse-ai), the emulator every
+  check runs on.
+
+## Licence
+
+MIT License. Copyright (c) 2026 Melissa O'Neill. See
+[LICENSE.txt](LICENSE.txt). The ROM's own code, in a built SPINE,
+is Amstrad's (see "The ROM", above).
