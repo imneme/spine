@@ -23,7 +23,8 @@ import spinepaths as P                                              # noqa: E402
 MODDIR = os.path.join(ROOT, 'src', 'modules')
 ALL = ['move', 'erase', 'cat', 'format', 'guard', 'fnusr', 'fnusr-examples', 'stillyours', 'udg', 'fastlines', 'expr', 'builtins', 'operators']
 NEEDS = {'fnusr-examples': ['fnusr'], 'builtins': ['expr'], 'operators': ['expr']}
-DEMO_NEEDS = ['move', 'erase', 'cat', 'format', 'fnusr', 'fnusr-examples', 'stillyours', 'udg']
+DEMO_NEEDS = ['move', 'erase', 'cat', 'format', 'fnusr', 'fnusr-examples', 'stillyours', 'udg', 'expr', 'builtins',
+              'operators']
 TOOL = os.path.join(ROOT, 'tools')
 
 

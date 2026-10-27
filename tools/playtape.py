@@ -27,7 +27,7 @@ shot('boot')
 zx.lib.zx_execmap(zx.z, 1, -1)                 # from here on, the spine's machine
 zx.type('LOAD ""\n'); zx.wait_ready(max_frames=50 * 60, pause=True)
 shot('title')
-for name in ('move', 'cat', 'usr'):
+for name in ('move', 'cat', 'usr', 'ops'):
     zx.keystroke('ENTER'); zx.wait_ready(max_frames=50 * 60, pause=True)
     shot(name)
 zx.keystroke('ENTER'); zx.wait_ready(max_frames=50 * 60, pause=True)
