@@ -17,7 +17,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import spinepaths as P                                              # noqa: E402
 
 state_path = next((a for a in sys.argv[1:] if a.endswith('.json')), os.path.join(P.ROOT, 'src', 'states', 'full.json'))
-TARGET = (0x24FB, 0x2795)
+TARGET = next((tuple(int(x, 16) for x in a.split('=')[1].split('-')) for a in sys.argv if a.startswith('--target=')),
+              (0x24FB, 0x2795))                    # --target=LO-HI (hex, HI excluded); default SCANNING and its S_
 lines = open(P.built('rom.asm')).read().split('\n')
 sym = P.sym(P.built('rom0.sym'))
 tagged = [f'SPL_{i}: {l.strip()}' if re.match(r'^\s+[A-Z]', l.split(';')[0]) else l for i, l in enumerate(lines)]

@@ -1,0 +1,5 @@
+# AT with a leading space (atspace), in LIST, in the listing after a line goes in, and in PRINT
+?10 PRINT 1 AT 8;" ";1 AT 3 AT 1: PRINT x;AT 0,0;"y": FOR i=1 TO 2 STEP 1: NEXT i
+?CLS: LIST
+?CLS: PRINT CHR$ 172;"|";CHR$ 205;"|";7;CHR$ 172
+?CLS: PRINT AT 1,0;"at";AT 2,0;"y"

@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(ROOT, 'tools'))
 import spinepaths as P                                              # noqa: E402
 
 MODDIR = os.path.join(ROOT, 'src', 'modules')
-ALL = ['move', 'erase', 'cat', 'format', 'guard', 'fnusr', 'fnusr-examples', 'stillyours', 'udg', 'fastlines', 'expr', 'builtins', 'operators']
+ALL = ['move', 'erase', 'cat', 'format', 'guard', 'fnusr', 'fnusr-examples', 'stillyours', 'udg', 'fastlines', 'expr', 'builtins', 'operators', 'atspace', 'atspace-hack']
 NEEDS = {'fnusr-examples': ['fnusr'], 'builtins': ['expr'], 'operators': ['expr']}
 DEMO_NEEDS = ['move', 'erase', 'cat', 'format', 'fnusr', 'fnusr-examples', 'stillyours', 'udg', 'expr', 'builtins',
               'operators']
@@ -50,6 +50,10 @@ def modules(a):
     unknown = [m for m in ms if m not in ALL]
     if unknown:
         sys.exit(f'spine: no such module: {", ".join(unknown)} (there are: {", ".join(ALL)})')
+    if not a.with_:                                # atspace-hack is the cheap alternative to atspace: on the menu,
+        ms = [m for m in ms if m != 'atspace-hack']               # not in the batteries
+    if 'atspace' in ms and 'atspace-hack' in ms:
+        sys.exit('spine: atspace and atspace-hack are two ways to the same thing: choose one')
     return [m for m in ALL if m in ms]                               # always in the same order
 
 

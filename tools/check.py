@@ -43,7 +43,7 @@ stage('rom: the disassembly is the ROM, byte for byte', code == 0, out.strip().s
 if code:
     sys.exit(1)
 BUILDS = [('bare', ['--bare', '--org', 'F300']), ('loose', ['--bare', '--loose', '--org', 'F800']),
-          ('batteries', []), ('romwords', ['--without', 'stillyours,udg'])]
+          ('batteries', []), ('romwords', ['--without', 'stillyours,udg,atspace'])]
 for name, args in BUILDS:
     code, out = spine('build', '-o', name, *args)
     stage(f'build {name}', code == 0, out.strip().split('\n')[-1])
@@ -71,7 +71,7 @@ if not quick:
         stage(f'real ROM {name} {steps}', code == 0 and diffs == 0, out.strip().split('\n')[-1])
 
 code, out = py(os.path.join(T, 'mkguard.py'), P.built('batteries.sym'))
-for t in ('feat', 'guard', 'usr', 'builtins', 'operators'):
+for t in ('feat', 'guard', 'usr', 'builtins', 'operators', 'atspace'):
     code, out = py(os.path.join(T, 'feattest.py'), P.built('batteries.bin'),
                    '%04X' % P.sym(P.built('batteries.sym'))['SPINE_START'], 'SPINE_COLD',
                    os.path.join(ROOT, 'tests', f'steps_{t}.txt'), '--golden', os.path.join(ROOT, 'tests', f'golden_{t}.txt'),

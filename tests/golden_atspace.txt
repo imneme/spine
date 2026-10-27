@@ -1,0 +1,18 @@
+10 PRINT 1 AT 8;" ";1 AT 3 AT 1: PRINT x K
+  |   10>PRINT 1 AT 8;" ";1 AT 3 AT
+  | 1: PRINT x; AT 0,0;"y": FOR i=1
+  | TO 2 STEP 1: NEXT i
+  | K
+CLS: LIST                                0 OK, still yours, 0:2
+  |   10 PRINT 1 AT 8;" ";1 AT 3 AT
+  | 1: PRINT x; AT 0,0;"y": FOR i=1
+  | TO 2 STEP 1: NEXT i
+  | 0 OK, still yours, 0:2
+CLS: PRINT CHR$ 172;"|";CHR$ 205;"|";7;C 0 OK, still yours, 0:2
+  |  AT | STEP |7 AT
+  | 0 OK, still yours, 0:2
+CLS: PRINT AT 1,0;"at";AT 2,0;"y"        0 OK, still yours, 0:2
+  | at
+  | y
+  | 0 OK, still yours, 0:2
+the ROM loops never ran

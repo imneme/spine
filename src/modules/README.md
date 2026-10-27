@@ -20,6 +20,8 @@ entry points).
 | `expr` | 2,190 | expressions owned too: SCANNING and every way into it, so the ROM's never runs |
 | `builtins` | 148 | `FN m(a,b)` (a MOD b) and `FN x$(n)` (n in hex), with no DEF FN needed (needs expr) |
 | `operators` | 151 | `a % b` (MOD), `a & b`, `a \| b` (bitwise), `a AT n` (shift): new operators (needs expr) |
+| `atspace` | 329 | `AT` lists with a leading space, as STEP does: `1 AT 8`, not `1AT 8` (owns CL_CHAN and every way into it) |
+| `atspace-hack` | 70 | the same, cheaply: puts it back at LIST, PRINT and the editor; the listing after a line goes in still says `1AT 8` (not in the batteries) |
 | `fastlines` | 36 | GO TO, GO SUB, RETURN and NEXT find their line faster: 1.8× on a 300-line program |
 
 The **reports table** costs 435 bytes. It comes with the first

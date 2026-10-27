@@ -36,8 +36,8 @@ CLS: RUN 20                              0 OK, still yours, 20:5
   | 0 OK, still yours, 20:5
 CLS: LIST 20                             0 OK, still yours, 0:2
   |   20>LET m=128: FOR i=1 TO 3: PR
-  | INT mAT -i;" ";: NEXT i: PRINT 7
-  | &-0+1|8
+  | INT m AT -i;" ";: NEXT i: PRINT
+  | 7&-0+1|8
   | 0 OK, still yours, 0:2
 PRINT "a" AT 2                           ? (refused: the flashing ?)
 the ROM loops never ran
