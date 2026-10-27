@@ -29,6 +29,7 @@ And because the loops are ours, BASIC can grow:
 | minding itself | CLEAR, LOAD CODE and POKE can't trample it |
 | faster jumps | GO TO, GO SUB, RETURN and NEXT find their line up to 1.8× faster in long programs |
 | expressions | owned too (`expr`): the ROM's expression evaluator, SCANNING, never runs either |
+| new functions | `FN m(a,b)` is a MOD b, `FN x$(n)` is n in hex, with no DEF FN needed (a program's own DEF FN still wins) |
 
 All of these are keywords the 48K ROM already had and never used
 (CAT, ERASE, FORMAT and MOVE were for the microdrives). You type

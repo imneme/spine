@@ -1,0 +1,22 @@
+CLS: PRINT FN m(17,5);" ";FN m(-7,3);" " 0 OK, still yours, 0:2
+  | 2 2 1.5 21
+  | 0 OK, still yours, 0:2
+CLS: PRINT FN x$(255);" ";FN x$(0);" ";F 0 OK, still yours, 0:2
+  | FF 0 1000 FFFF BEEF!
+  | 0 OK, still yours, 0:2
+CLS: LET h$=FN x$(3054): PRINT h$;" ";LE 0 OK, still yours, 0:3
+  | BEE 3 9 -1
+  | 0 OK, still yours, 0:3
+PRINT FN x$(-1)                          B Integer out of range, 0:1
+PRINT FN x$("a")                         A Invalid argument, 0:1
+PRINT FN m(1)                            Q Parameter error, 0:1
+PRINT FN q(1)                            P FN without DEF, 0:1
+PRINT FN m(1,0)                          6 Number too big, 0:1
+10 DEF FN m(a,b)=a+b                     K
+CLS: PRINT FN m(1,2);" ";FN x$(10)       0 OK, still yours, 0:2
+  | 3 A
+  | 0 OK, still yours, 0:2
+CLS: LIST                                0 OK, still yours, 0:2
+  |   10 DEF FN m(a,b)=a+b
+  | 0 OK, still yours, 0:2
+the ROM loops never ran

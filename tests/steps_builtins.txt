@@ -1,0 +1,12 @@
+# built-in FNs (the builtins module, on SCANNING owned by expr)
+?CLS: PRINT FN m(17,5);" ";FN m(-7,3);" ";FN m(7.5,2);" ";FN m(10,4)*10+1
+?CLS: PRINT FN x$(255);" ";FN x$(0);" ";FN x$(4096);" ";FN x$(65535);" ";FN x$(48879)+"!"
+?CLS: LET h$=FN x$(3054): PRINT h$;" ";LEN h$;" ";FN m(-1,10);" ";FN m(5,-3)
+PRINT FN x$(-1)
+PRINT FN x$("a")
+PRINT FN m(1)
+PRINT FN q(1)
+PRINT FN m(1,0)
+10 DEF FN m(a,b)=a+b
+?CLS: PRINT FN m(1,2);" ";FN x$(10)
+?CLS: LIST
