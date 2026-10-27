@@ -1,13 +1,32 @@
-; Built-in functions: FN high(n), FN low(n) and FN x$(n). A SPINE module (needs expr): build_spine.py ... --module
-; src/modules/builtins.asm. See src/modules/README.md.
+; Built-in functions, and DEF FN ... AT for new ones in machine code. A SPINE module (needs expr):
+; build_spine.py ... --module src/modules/builtins.asm. See src/modules/README.md.
 ;
-; With SCANNING the spine's own (the expr module), so is FN: when no DEF FN is found for a name, instead of
-; report P the spine looks in its own table. A program's own DEF FN of the same name is found first, and wins.
-; An FN's name may be longer than one letter: a letter, then letters and digits, spaces ignored, as for LET.
+; With SCANNING the spine's own (the expr module), so is FN. An FN's name may be longer than one letter: a letter,
+; then letters and digits, spaces ignored, as for LET (DEF FN area(w,h)=w*h). A DEF FN may give, instead of
+; '=' and an expression, AT and an address: DEF FN squeal(k,t) AT 56789. Its FN calls the machine code there with
+; the arguments (checked against the parameters: as many, numbers for numbers, strings for strings, else report
+; Q) on the calculator stack, the first deepest; the code leaves one result there in their place (a string for a
+; name ending '$') and returns. As with USR, it must keep IY and HL'.
+; When no DEF FN is found for a name, instead of report P the spine looks in its own table, BI_TABLE, whose
+; entries are such declarations too. A program's own DEF FN of the same name is found first, and wins.
 ;   FN high(n)  the high byte of n (0 to 65535): FN high(48879) is 190
 ;   FN low(n)   its low byte: FN low(48879) is 239
 ;   FN x$(n)    n in hexadecimal, no leading zeros: FN x$(48879) is "BEEF"
 ; (FN m(a,b), a MOD b, has retired: a % b does it.)
+;; needs DEF_FN
+;; replace RST $20 ; Fetch the next character. @ DEF_FN_1
+  CALL SP_FNNAME          ; (the spine's: past the whole name, which may be
+                          ; longer than a letter)
+;; end patch
+;; replace CP "=" ; It must be an '='. @ DEF_FN_6
+  CP $AC                  ; (the spine's: or AT, and an address)
+  JP Z,SP_DFAT_SYN        ;
+  CP "="                  ; It must be an '='.
+;; end patch
+;; replace AND A ; If HL is now pointing to a '$', move on to the '('. @ SF_VALUES
+  CALL SP_DFAT            ; (the spine's: a DEF FN ... AT goes its own way)
+  AND A                   ; If HL is now pointing to a '$', move on to the '('.
+;; end patch
 ;; replace RST $20 ; Get the next character. @ S_FN_SBRN
   CALL SP_FNNAME          ; (the spine's: past the whole name, which may be
                           ; longer than a letter)
@@ -64,8 +83,9 @@ DN_END:
   POP BC                  ;
   RET                     ;
 
-; SP_BUILTIN: from S_FN_SBRN, no DEF FN found. CH_ADD is at the first argument; on the stack, S_FN_SBRN's pointer
-; to it. The name, from SP_FNPTR, is looked for in BI_TABLE.
+; SP_BUILTIN: from S_FN_SBRN, no DEF FN found. B = the name's first letter and C = 0 for a string FN; CH_ADD is
+; at the first argument; on the stack, S_FN_SBRN's pointer to it. The name, from SP_FNPTR, is looked for in
+; BI_TABLE.
 SP_BUILTIN:
   POP HL                  ; The first argument, back in CH_ADD (the search
   LD (CH_ADD),HL          ; for a DEF FN may have moved it, as EACH_STMT does).
@@ -84,18 +104,16 @@ BI_CMP:
   AND $DF                 ;
   JR NZ,BI_NEXT           ;
   LD A,(HL)               ; Matched as far as the '(': this is it.
-  INC HL                  ;
   CP "("                  ;
+  INC HL                  ;
   JR NZ,BI_CMP            ;
-  LD A,(HL)               ; Its routine.
-  INC HL                  ;
-  LD H,(HL)               ;
-  LD L,A                  ;
-  JP (HL)                 ;
+  DEC HL                  ;
+  LD B,0                  ; (B = 0: from the table)
+  JR SP_ATFN              ;
 BI_NEXT:
-  LD A,(HL)               ; Not this one: on past its '(' and address.
+  LD A,(HL)               ; Not this one: on past its ')' and address.
   INC HL                  ;
-  CP "("                  ;
+  CP ")"                  ;
   JR NZ,BI_NEXT           ;
   INC HL                  ;
   INC HL                  ;
@@ -103,33 +121,164 @@ BI_NEXT:
 BI_P:
   RST $08                 ; Report P - FN without DEF, as before.
   DEFB $18                ;
-; BI_TABLE: the spine's own FNs: each name, as far as its '(', then its routine. The routine starts with CH_ADD at
-; the first argument, and ends with the result on the calculator stack and RST $18, JP S_CONT_2.
+
+; SP_DFAT_SYN: from DEF_FN, checking syntax, at the AT that takes the place of '=': a number, the address, must
+; follow, and end the statement.
+SP_DFAT_SYN:
+  RST $20                 ;
+  CALL CLASS_06           ; (EXPT_1NUM: a number.)
+  CALL CHECK_END          ;
+
+; SP_DFAT: from SF_VALUES, with the DEF FN found; HL on its '$' or '('. Unless its ')' is followed by AT, back
+; to the ROM's way; else S_FN_SBRN's pointers come off the stack and SP_ATFN calls the code.
+SP_DFAT:
+  PUSH HL                 ;
+  PUSH AF                 ;
+DA_LOOP:
+  CALL AA_NEXT            ; As far as the ')',
+  CP ")"                  ;
+  JR NZ,DA_LOOP           ;
+  CALL AA_NEXT            ; and what follows it.
+  CP $AC                  ;
+  JR Z,DA_AT              ;
+  POP AF                  ;
+  POP HL                  ;
+  RET                     ;
+DA_AT:
+  POP AF                  ;
+  POP HL                  ;
+  POP DE                  ; (This return address,
+  POP DE                  ; the pointer to the DEF FN,
+  POP DE                  ; and to the FN's first argument: into CH_ADD.)
+  LD (CH_ADD),DE          ;
+  AND A                   ; A '$': on to the '('.
+  CALL Z,FN_SKPOVR        ;
+
+; SP_ATFN: HL on the '(' of a declaration, a DEF FN ... AT (B not 0) or a BI_TABLE entry (B = 0), C = 0 for a
+; string FN, and CH_ADD on the FN's first argument. The arguments go onto the calculator stack, and the code
+; at the address is called; it leaves the result there.
+SP_ATFN:
+  PUSH BC                 ;
+  CALL SP_ATARGS          ; HL is left on the declaration's ')'.
+  POP BC                  ;
+  PUSH BC                 ;
+  INC B                   ; From the table: the address follows the ')'.
+  DEC B                   ;
+  JR NZ,AF_PROG           ;
+  INC HL                  ;
+  LD C,(HL)               ;
+  INC HL                  ;
+  LD B,(HL)               ;
+  JR AF_CALL              ;
+AF_PROG:
+  CALL FN_SKPOVR          ; From a DEF FN: past the AT, the address is
+  LD DE,(CH_ADD)          ; evaluated there, the FN's place kept meanwhile.
+  PUSH DE                 ;
+  LD (CH_ADD),HL          ;
+  RST $20                 ;
+  CALL CLASS_06           ; (EXPT_1NUM: a number.)
+  CALL FIND_INT2          ;
+  POP HL                  ;
+  LD (CH_ADD),HL          ;
+AF_CALL:
+  LD HL,(CH_ADD)          ; (CH_ADD kept for the code.)
+  PUSH HL                 ;
+  CALL SP_JPBC            ; The code.
+  POP HL                  ;
+  LD (CH_ADD),HL          ;
+  POP BC                  ; The result: a number, unless the name ends '$'.
+  LD HL,FLAGS             ;
+  RES 6,(HL)              ;
+  INC C                   ;
+  DEC C                   ;
+  JR Z,AF_STR             ;
+  SET 6,(HL)              ;
+AF_STR:
+  RST $20                 ; Past the FN's ')'.
+  JP S_CONT_2             ;
+SP_JPBC:
+  PUSH BC                 ;
+  RET                     ;
+
+; SP_ATARGS: the FN's arguments (CH_ADD on the first), each checked against a parameter of the declaration (HL on
+; its '('): as many, numbers for numbers, strings for strings, else report Q. They are left on the calculator
+; stack, the first deepest; HL is left on the declaration's ')', CH_ADD on the FN's.
+SP_ATARGS:
+  CALL AA_NEXT            ; The first parameter, or ')': none.
+  CP ")"                  ;
+  JR NZ,AA_PARAM          ;
+  EX DE,HL                ; Then the FN must have none either.
+  RST $18                 ;
+  EX DE,HL                ;
+  CP ")"                  ;
+  RET Z                   ;
+AA_Q:
+  RST $08                 ; Report Q - Parameter error.
+  DEFB $19                ;
+AA_PARAM:
+  CALL AA_NEXT            ; After the parameter's letter, a '$' for a string,
+  CP "$"                  ;
+  PUSH AF                 ;
+  CALL Z,AA_NEXT          ; then a ',' or ')'.
+  PUSH HL                 ;
+  CALL SCANNING           ; The FN's argument, onto the calculator stack.
+  POP DE                  ; (The declaration in DE: RST $18 and $20 use HL.)
+  POP AF                  ; Of the parameter's kind?
+  JR Z,AA_STR             ;
+  BIT 6,(IY+$01)          ;
+  JR Z,AA_Q               ;
+  JR AA_SEP               ;
+AA_STR:
+  BIT 6,(IY+$01)          ;
+  JR NZ,AA_Q              ;
+AA_SEP:
+  RST $18                 ; The FN's ',' or ')' and the declaration's must
+  EX DE,HL                ; be the same.
+  CP (HL)                 ;
+  JR NZ,AA_Q              ;
+  CP ")"                  ;
+  RET Z                   ;
+  EX DE,HL                ; A ',': on to the next of each.
+  RST $20                 ;
+  EX DE,HL                ;
+  CALL AA_NEXT            ;
+  JR AA_PARAM             ;
+AA_NEXT:
+  INC HL                  ; The declaration's next character, past spaces and
+  LD A,(HL)               ; the hidden numbers a DEF FN keeps its parameters'
+  CP $0E                  ; values in.
+  JR Z,AA_NUM             ;
+  CP $21                  ;
+  JR C,AA_NEXT            ;
+  RET                     ;
+AA_NUM:
+  INC HL                  ;
+  INC HL                  ;
+  INC HL                  ;
+  INC HL                  ;
+  INC HL                  ;
+  JR AA_NEXT              ;
+
+; BI_TABLE: the spine's own FNs, each a declaration as a DEF FN ... AT gives it (as far as its ')'), then the
+; code's address. The code follows SP_ATFN's way: the arguments on the calculator stack, the result left there.
 BI_TABLE:
-  DEFM "high("            ;
+  DEFM "high(n)"          ;
   DEFW BI_HIGH            ;
-  DEFM "low("             ;
+  DEFM "low(n)"           ;
   DEFW BI_LOW             ;
-  DEFM "x$("              ;
+  DEFM "x$(n)"            ;
   DEFW BI_HEX             ;
   DEFB 0                  ;
 BI_HIGH:
-  CALL BI_ONE             ; n)
+  CALL FIND_INT2          ; n, 0 to 65535 (else report B): its high byte.
   LD A,B                  ;
-  JR BI_BYTE              ;
+  JP STACK_A              ;
 BI_LOW:
-  CALL BI_ONE             ; n)
+  CALL FIND_INT2          ; Its low byte.
   LD A,C                  ;
-BI_BYTE:
-  CALL STACK_A            ;
-  RST $18                 ;
-  JP S_CONT_2             ;
-BI_ONE:
-  CALL BI_ARG             ; One argument, n): BC = n (report B if it isn't 0
-  CALL BI_END             ; to 65535).
-  JP FIND_INT2            ;
+  JP STACK_A              ;
 BI_HEX:
-  CALL BI_ONE             ; n)
+  CALL FIND_INT2          ; n, 0 to 65535 (else report B).
   PUSH BC                 ;
   LD BC,4                 ; Room for four digits in the workspace.
   RST $30                 ;
@@ -151,9 +300,7 @@ BI_HEX:
   POP DE                  ; The string: its start, and L long.
   LD B,0                  ;
   LD C,L                  ;
-  CALL STK_ST_0           ; (A string result: FLAGS says so.)
-  RST $18                 ;
-  JP S_CONT_2             ;
+  JP STK_ST_0             ;
 BI_HI:
   RRCA                    ; The high nibble, then as BI_LO.
   RRCA                    ;
@@ -175,20 +322,3 @@ BI_PUT:
   INC DE                  ;
   INC L                   ;
   RET                     ;
-BI_ARG:
-  CALL SCANNING           ; An argument: it must be a number (report A).
-  BIT 6,(IY+$01)          ;
-  JR Z,BI_A               ;
-  RST $18                 ; Returns the character after it.
-  RET                     ;
-BI_END:
-  CP ")"                  ; The last: a ')' must follow (report Q), and is
-  JR NZ,BI_Q              ; stepped over.
-  RST $20                 ;
-  RET                     ;
-BI_A:
-  RST $08                 ; Report A - Invalid argument.
-  DEFB $09                ;
-BI_Q:
-  RST $08                 ; Report Q - Parameter error.
-  DEFB $19                ;

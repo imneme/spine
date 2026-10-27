@@ -30,6 +30,7 @@ And because the loops are ours, BASIC can grow:
 | faster jumps | GO TO, GO SUB, RETURN and NEXT find their line up to 1.8× faster in long programs |
 | expressions | owned too (`expr`): the ROM's expression evaluator, SCANNING, never runs either |
 | new functions | `FN high(n)` and `FN low(n)` are n's high and low bytes, `FN x$(n)` is n in hex, with no DEF FN needed (a program's own DEF FN still wins); FN names may be longer than a letter |
+| `DEF FN squeal(k,t) AT 56789` | a new function in machine code: its arguments, checked against the parameters, on the calculator stack (first deepest), its one result left there |
 | `AT` with a space | `1 AT 8` lists with its space, as STEP does (`atspace`) |
 | new operators | `a % b` (MOD), `a & b` and `a \| b` (bitwise), `a AT n` (shift: `3 AT 2` is 12, `255 AT -2` is 63) |
 

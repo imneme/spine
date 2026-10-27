@@ -15,3 +15,20 @@ PRINT FN x(1)
 20 DEF FN x$(n)="mine"
 ?CLS: PRINT FN h(1);" ";FN high(4660);" ";FN x$(10);" ";FN low(4660)
 ?CLS: LIST
+30 DEF FN twice(n) AT 23296
+40 DEF FN sub(a,b) AT 23296+5
+50 DEF FN size(a$) AT 23305
+60 DEF FN area(w,h)=w*h
+70 DEF FN a(x)=x+100
+9000 DATA 239,49,15,56,201,239,3,56,201,205,241,43,205,43,45,201
+?CLS: RESTORE 9000: FOR i=0 TO 15: READ b: POKE 23296+i,b: NEXT i: PRINT FN twice(21);" ";FN sub(10,3);" ";FN size("hello");" ";FN twice(FN sub(5,1))
+?CLS: PRINT FN area(3,4);" ";FN a(1);" ";FN twice(FN area(2,FN a(-98)))
+PRINT FN twice("a")
+PRINT FN sub(1)
+PRINT FN sub(1,2,3)
+PRINT FN size(1)
+PRINT FN twice()
+80 DEF FN bad(n) AT "x"
+80 DEF FN high(n) AT 23296
+?CLS: PRINT FN high(5);" ";FN low(258)
+?CLS: LIST
