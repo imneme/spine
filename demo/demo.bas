@@ -30,8 +30,8 @@
 390 PRINT #0;"Press any key": PAUSE 0
 392 CLS: PRINT INK 6;"Operators";INK 7;" and ";INK 6;"functions";INK 7;","'"new, since expressions are the"'"spine's own too:"
 393 PRINT INK 5;'"17%5 = ";17%5;"     -7%3 = ";-7%3'"12&10 = ";12&10;"    12|10 = ";12|10'"3 AT 2 = ";3 AT 2;"  255 AT -2 = ";255 AT -2
-394 PRINT INK 5;'"FN m(17,5) = ";FN m(17,5)'"FN x$(48879) = ";FN x$(48879)
-395 PRINT '"% is MOD, & and | are bitwise,"'"AT shifts; FN m and FN x$ need"'"no DEF FN. The ROM's SCANNING"'"never runs."
+394 PRINT INK 5;'"FN high(48879) = ";FN high(48879)'"FN low(48879)  = ";FN low(48879)'"FN x$(48879)   = ";FN x$(48879)
+395 PRINT '"% is MOD, & and | are bitwise,"'"AT shifts; FN high, low and x$"'"need no DEF FN. The ROM's"'"SCANNING never runs."
 398 PRINT #0;"Press any key": PAUSE 0
 400 CLS: PRINT INK 6;"BREAK";INK 7;" it now: CAPS SHIFT"'"and SPACE. Then type CONTINUE."
 410 PAUSE 0

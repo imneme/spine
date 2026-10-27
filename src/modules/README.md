@@ -18,7 +18,7 @@ entry points).
 | `stillyours` | | `0 OK, still yours`, `L BREAK, still yours` |
 | `udg` | 207 | UDGs A to U at boot, and the heart on the © line |
 | `expr` | 2,190 | expressions owned too: SCANNING and every way into it, so the ROM's never runs |
-| `builtins` | 148 | `FN m(a,b)` (a MOD b) and `FN x$(n)` (n in hex), with no DEF FN needed (needs expr) |
+| `builtins` | 239 | `FN high(n)`, `FN low(n)` (n's bytes) and `FN x$(n)` (n in hex), from a table, with no DEF FN needed; FN names longer than a letter (needs expr) |
 | `operators` | 151 | `a % b` (MOD), `a & b`, `a \| b` (bitwise), `a AT n` (shift): new operators (needs expr) |
 | `atspace` | 454 | `AT` lists with a leading space, as STEP does: `1 AT 8`, not `1AT 8` (owns CL_CHAN and every way into it, and PO_CONT, which put the ROM's PRINT_OUT back after every INK, AT or TAB) |
 | `atspace-hack` | 70 | the same, cheaply: puts it back at LIST, PRINT and the editor; the listing after a line goes in still says `1AT 8` (not in the batteries) |
