@@ -48,7 +48,7 @@ for name, args in BUILDS:
     code, out = spine('build', '-o', name, *args)
     stage(f'build {name}', code == 0, out.strip().split('\n')[-1])
 for name, flags in [('bare', []), ('loose', ['--main']), ('batteries', []), ('batteries', ['--main', '--ld']),
-                    ('romwords', [])]:
+                    ('batteries', ['--target=24FB-2794']), ('romwords', []), ('romwords', ['--target=24FB-2794'])]:
     code, out = py(os.path.join(T, 'reach.py'), P.built(name + '.asm'), *flags)
     stage(f'static {name} {" ".join(flags)}'.strip(), code == 0 and ' 0 of them can reach it' in out, out.split('\n')[0])
 
@@ -65,13 +65,15 @@ if not quick:
         print('     (no AOC_ARCHIVE: Melissa\'s tapes skipped)')
     for name, steps, strict in runs:
         code, out = py(os.path.join(T, 'difftest.py'), P.built(name + '.bin'), os.path.join(tests, steps + '.txt'),
-                       *(['--strict'] if strict else []), emu=True, env={'AOC_ARCHIVE': archive})
+                       *(['--strict'] if strict else []), *(['--forbid=24FB-2794'] if name == 'romwords' else []),
+                       emu=True, env={'AOC_ARCHIVE': archive})                     # romwords owns SCANNING too
         diffs = sum(l.startswith('DIFF') for l in out.split('\n'))
         stage(f'real ROM {name} {steps}', code == 0 and diffs == 0, out.strip().split('\n')[-1])
 
 code, out = py(os.path.join(T, 'mkguard.py'), P.built('batteries.sym'))
 for t in ('feat', 'guard', 'usr'):
-    code, out = py(os.path.join(T, 'feattest.py'), P.built('batteries.bin'), 'E848', 'SPINE_COLD',
+    code, out = py(os.path.join(T, 'feattest.py'), P.built('batteries.bin'),
+                   '%04X' % P.sym(P.built('batteries.sym'))['SPINE_START'], 'SPINE_COLD',
                    os.path.join(ROOT, 'tests', f'steps_{t}.txt'), '--golden', os.path.join(ROOT, 'tests', f'golden_{t}.txt'),
                    emu=True)
     stage(f'modules {t}', code == 0, ' '.join(out.strip().split('\n')[-2:]))

@@ -57,6 +57,11 @@ line each:
     ;; replace TEXT        these lines replace the one spine line that
     ...                    starts with TEXT (spaces squeezed)
     ;; end patch
+    ;; data NAME [offsets] carry this data entry in its ROM place
+                           ('offsets': its one-byte offsets to labels are
+                           rewritten LABEL-$-1, so they still land)
+
+`;; replace TEXT @ LABEL` takes the first matching line after LABEL:.
 
 Add the module's name to `ALL` in `./spine`, a transcript test to
 `tests/`, and a line to `src/modules/README.md`.
@@ -68,12 +73,14 @@ Add the module's name to `ALL` in `./spine`, a transcript test to
   every JP, JR, CALL, RST and fall-through. Then it checks that no
   place a build hands the ROM control can reach the ROM's statement
   loop (`--main`: its main loop). `--ld` also treats every code
-  address the ROM loads into a register as a possible jump.
+  address the ROM loads into a register as a possible jump, and
+  `--target=LO-HI` checks any range (SCANNING is 24FB-2794). An
+  `RST 28` reaches the operations its literal stream names.
 - **real ROM:** `tools/difftest.py` types the same keys into the
   real ROM and into a build, and compares the screen and the report
   after every step. `--strict` also fails if the ROM's statement
-  loop ever runs; without it, only its main loop counts. The step
-  files are `tests/steps_*.txt`.
+  loop ever runs; without it, only its main loop counts; `--forbid=LO-HI` adds any range. The
+  step files are `tests/steps_*.txt`.
 - **modules:** `tools/feattest.py` runs `tests/steps_*.txt` on the
   batteries build, against `tests/golden_*.txt`. In steps, `{expr}`
   is worked out from the build's `.sym` (`{FN_HYPOT}`,

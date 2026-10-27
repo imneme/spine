@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(ROOT, 'tools'))
 import spinepaths as P                                              # noqa: E402
 
 MODDIR = os.path.join(ROOT, 'src', 'modules')
-ALL = ['move', 'erase', 'cat', 'format', 'guard', 'fnusr', 'fnusr-examples', 'stillyours', 'udg', 'fastlines']
+ALL = ['move', 'erase', 'cat', 'format', 'guard', 'fnusr', 'fnusr-examples', 'stillyours', 'udg', 'fastlines', 'expr']
 NEEDS = {'fnusr-examples': ['fnusr']}
 DEMO_NEEDS = ['move', 'erase', 'cat', 'format', 'fnusr', 'fnusr-examples', 'stillyours', 'udg']
 TOOL = os.path.join(ROOT, 'tools')
@@ -57,8 +57,11 @@ def ensure_rom():
         run(os.path.join(TOOL, 'mkrom.py'))
 
 
-def build(name, mods, org='E800', loose=False, quiet=False):
+def build(name, mods, org=None, loose=False, quiet=False):
     ensure_rom()
+    if org is None:                                # as high as it fits under the UDGs (FF58), at an address ending
+        build(name, mods, 'C000', loose, quiet=True)               # in 48: built once to learn its size
+        org = '%04X' % ((0xFF58 - os.path.getsize(P.built(name + '.bin')) - 0x48) & 0xFF00)
     state = os.path.join(ROOT, 'src', 'states', 'loose.json' if loose else 'full.json')
     asm = P.built(name + '.asm')
     run(os.path.join(TOOL, 'build_spine.py'), state, asm, org, *sum((['--module', os.path.join(MODDIR, m + '.asm')]
@@ -89,7 +92,7 @@ def main():
         p.add_argument('--with', dest='with_', metavar='A,B', help='only these modules')
         p.add_argument('--without', metavar='A,B', help='all but these modules')
         p.add_argument('--bare', action='store_true', help='no modules: the spine alone')
-        p.add_argument('--org', default='E800', help='where it goes (hex; default E800, which makes E848)')
+        p.add_argument('--org', help='where it goes (hex; default: as high as it fits under the UDGs)')
         p.add_argument('--loose', action='store_true', help='the loose spine (control always comes home; statements '
                        'may still run in the ROM\'s loop): 564 bytes')
         p.add_argument('-o', dest='out', help='the build\'s name (build), or the tapes\' directory (tape)')

@@ -46,7 +46,8 @@ def owner(zx):
 real, ours = start(None), start(copy)
 import ctypes
 ours.lib.zx_execmap(ours.z, 1, -1)              # from here on, every address the copy's machine executes is counted
-FORBID = [(0x12A2, 0x1391)] + ([(0x1B28, 0x1B9E)] if '--strict' in sys.argv else [])   # the real ROM's main loop
+FORBID = [(0x12A2, 0x1391)] + ([(0x1B28, 0x1B9E)] if '--strict' in sys.argv else [])
+FORBID += [tuple(int(x, 16) for x in a.split('=')[1].split('-')) for a in sys.argv if a.startswith('--forbid=')]   # LO-HI, hex   # the real ROM's main loop
 # (and, strict, its statement loop): if either ever runs, control fell out of the copy
 
 

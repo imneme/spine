@@ -11,6 +11,9 @@ import spinepaths as P  # noqa: E402
 PASMO = P.PASMO
 spine_asm = sys.argv[1]
 target = (0x12A2, 0x1390) if '--main' in sys.argv else (0x1B28, 0x1B9D)
+for _a in sys.argv:
+    if _a.startswith('--target='):                # --target=LO-HI (hex), e.g. SCANNING's 24FB-2794
+        target = tuple(int(x, 16) for x in _a.split('=')[1].split('-'))
 
 lines = open(P.built('rom.asm')).read().split('\n')
 sym = {n: int(a, 16) for n, a in re.findall(r'^(\S+)\s+EQU\s+0?([0-9A-F]+)H', open(P.built('rom0.sym')).read(), re.M)}
@@ -31,6 +34,42 @@ def value(s):
     if s.startswith('$'):
         return int(s[1:], 16)
     return sym.get(s)
+
+
+CALC = {}                                          # the calculator's operations, by name (CALCADDR's DEFWs)
+_k0 = next((i for i, l in enumerate(lines) if l.startswith('CALCADDR:')), None)
+for _l in (lines[_k0 + 1:_k0 + 80] if _k0 is not None else []):
+    _m = re.match(r'^\s+DEFW\s+(\w+)', _l)
+    if not _m:
+        break
+    CALC[_m.group(1)] = sym[_m.group(1)]
+_ALIAS = [(r'^stk_(zero|one|half|pi_2|ten)$', 'stk_const_xx'), (r'^st_mem_\d', 'st_mem_xx'),
+          (r'^get_mem_\d', 'get_mem_xx'), (r'^series_', 'series_xx')]
+
+
+def op_addr(name):
+    if name in CALC:
+        return CALC[name]
+    return next((CALC[g] for p, g in _ALIAS if re.match(p, name) and g in CALC), None)
+
+
+def stream_names(comments):
+    """the operations a literal stream names (fp_calc_2, whose operation is in B: all of them)"""
+    out = set()
+    for c in comments:
+        w = re.match(r'^([a-z_0-9$]+)', c or '')
+        if w:
+            name = w.group(1).rstrip(':')
+            out |= set(CALC.values()) if name == 'fp_calc_2' else ({op_addr(name)} - {None})
+    return out
+
+
+def stream_ops(j):
+    cs = []
+    while j < len(rows) and DATA.match(rows[j][2]):
+        cs.append(lines[rows[j][1]].partition(';')[2].strip())
+        j += 1
+    return stream_names(cs)
 
 
 succ = collections.defaultdict(set)
@@ -56,9 +95,9 @@ for k, (a, i, t) in enumerate(rows):
         n = value(args)
         if n == 0x08:
             succ[a] |= {n}                         # an error: ERROR_1, which RETs to ERR_SP (ours); no fall-through
-        elif n == 0x28:                            # the calculator: literals follow; it comes back after them
-            after = next((r[0] for r in rows[k + 1:] if not DATA.match(r[2])), None)
-            succ[a] |= {n, after}
+        elif n == 0x28:                            # the calculator: literals follow; it comes back after them,
+            after = next((r[0] for r in rows[k + 1:] if not DATA.match(r[2])), None)   # having run the operations
+            succ[a] |= {n, after} | stream_ops(k + 1)                                      # they name
         else:
             succ[a] |= {n, nxt}
     else:
@@ -122,6 +161,15 @@ for l in spine:
         hand[a].add(f'{op} {w}')
     if op == 'RST':
         hand[value(args)].add(f'RST {args}')
+        if value(args) == 0x28:                    # and the operations its stream names
+            k = spine.index(l)
+            cs = []
+            for l2 in spine[k + 1:]:
+                if not re.match(r'^\s+DEFB', l2):
+                    break
+                cs.append(l2.partition(';')[2].strip())
+            for a2 in stream_names(cs):
+                hand[a2].add('RST $28 stream')
 hand[0x0038].add('the interrupt')
 bad = [(a, sorted(h)) for a, h in sorted(hand.items()) if a in reach]
 print(f'{len(reach)} ROM instructions can reach {target[0]:04X}-{target[1]:04X}; the spine hands control to the ROM at '

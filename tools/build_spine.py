@@ -17,8 +17,10 @@ line of its own:
   ;; report X TEXT       report X says TEXT (0-9, A-R are the ROM's; S on are new)
   ;; copyright OPERAND   the boot line, as DEFM's operand (else the ROM's own, printed from the ROM)
   ;; cold LABEL          CALLed by SPINE_COLD before NEW
+  ;; data NAME [offsets] carry this data entry, in its ROM place ('offsets': its DEFB x,$nn ; LABEL lines are
+                         one-byte offsets to LABEL, rewritten LABEL-$-1 so they still land)
   ;; patch LABEL / ;; replace TEXT, then lines, then ;; end patch: put the lines in after the spine's LABEL:, or
-                         in place of the one spine line starting TEXT (spaces squeezed)
+                         in place of the one spine line starting TEXT (spaces squeezed; TEXT @ LABEL: the first after LABEL:)
 Prints the spine's size."""
 import json
 import os
@@ -38,6 +40,7 @@ org = int(args[2], 16) if len(args) > 2 else 0xF800
 
 # the modules
 params, mcode, patches, replaces, reports, colds, needs, whole, copyright = [], [], {}, {}, {}, [], [], [], None
+datas = {}                                         # data entries carried in ROM order: name -> offsets to rewrite?
 for path in mods:
     text = open(path).read().split('\n')
     cut = next((i for i, l in enumerate(text) if l.strip() == ';; code'), None)
@@ -54,7 +57,7 @@ for path in mods:
                 replaces[' '.join(l[len(';; replace '):].split())] = c[i + 1:j]
             i = j + 1
             continue
-        d = re.match(r';; (needs|whole|report|copyright|cold) (.*)$', l)
+        d = re.match(r';; (needs|whole|report|copyright|cold|data) (.*)$', l)
         if d:
             kind, rest = d.groups()
             if kind == 'needs':
@@ -65,6 +68,9 @@ for path in mods:
                 reports[rest[0]] = rest[2:]
             elif kind == 'copyright':
                 copyright = rest
+            elif kind == 'data':
+                w = rest.split()
+                datas[w[0]] = 'offsets' in w[1:]
             else:
                 colds.append(rest.strip())
         else:
@@ -106,14 +112,16 @@ for k, (i, e) in enumerate(starts):
         chunks.append(['@CMDCLASS'])
         defined.add('CMDCLASS')
         continue
-    if e['start'] not in kept and e['name'] != 'SYNTAX':    # SYNTAX: its DEFWs must reach our commands
-        continue
+    if e['start'] not in kept and e['name'] != 'SYNTAX' and e['name'] not in datas:    # SYNTAX: its DEFWs must
+        continue                                                                       # reach our commands
     j = starts[k + 1][0] if k + 1 < len(starts) else len(lines)
     if e['start'] in prefix:                       # keep only up to the cut; then JP to the ROM's next instruction
         cut = prefix[e['start']]
         j = next(n for n in range(i, j) if addr.get(n, -1) >= cut)
         assert addr[j] == cut, f"{e['name']}: {cut:04X} is not an instruction (nearest {addr[j]:04X})"
     body = [l for l in lines[i:j] if not re.match(r'^\s*(ORG|END)\b', l.split(';')[0])]
+    if datas.get(e['name']):                       # one-byte offsets to code, as numbers: made symbolic, so they
+        body = [re.sub(r'DEFB (.+),\$[0-9A-F]{2}(\s*); (\w+)$', r'DEFB \1,\3-$-1\2; \3', l) for l in body]   # still land
     if e['start'] in prefix:
         body.append(f'  JP SPINE_TAIL_{cut:04X}            ; (the rest of {e["name"]} is the ROM\'s)')
         tails.append(f'SPINE_TAIL_{cut:04X} EQU ${cut:04X}')
@@ -137,6 +145,7 @@ for k, (i, e) in enumerate(starts):
 chunks.sort(key=lambda c: not any(l.startswith('SYNTAX:') for l in c))
 org = org if not loop_ours else (org & 0xFF00) | 0x48 if (org & 0xFF) <= 0x48 else ((org + 0x100) & 0xFF00) | 0x48
 src = []
+last_label = None
 for body in chunks:
     if body == ['@CMDCLASS']:                      # one byte forward from each entry: to our class, or to a JP stub
         cls = [f'CLASS_{n:02X}' for n in range(12)]
@@ -158,7 +167,11 @@ for body in chunks:
                 l = f'{m.group(1)}JP {cc + "," if cc else ""}{m.group(4)}   ; (was JR into the ROM)'
         if copyright:
             l = l.replace('LD DE,$1538', 'LD DE,SPINE_COPYRIGHT-1')
-        key = next((k for k in replaces if ' '.join(l.split()).startswith(k)), None)
+        lab0 = re.match(r'^([A-Za-z_]\w*):', l)
+        if lab0:
+            last_label = lab0.group(1)
+        key = next((k for k in replaces if ' '.join(l.split()).startswith(k.split(' @ ')[0])
+                    and (' @ ' not in k or k.split(' @ ')[1] == last_label)), None)
         if key:
             src += replaces.pop(key)
             continue

@@ -113,6 +113,27 @@ Then the loops were ours to extend:
   inside a running FN showed that, and clearing the bit returns a
   string.
 
+## Owning expressions too
+
+With the loops ours, the ROM's SCANNING still evaluated every
+expression. How much would owning it cost? `tools/closure.py` found
+every ROM routine from which SCANNING can be reached by a way the
+spine could take. It follows each `RST 28` only to the operations
+its literal stream names. That came to 39 routines and 1,955 bytes,
+plus SCANNING's function table (25 bytes: one-byte offsets, now
+rewritten so they still land). VAL is a back door: the calculator
+reaches `val` through its own table of addresses, so the dispatcher
+comes too (210 bytes), and SCANNING's operator step calls the
+spine's.
+
+The guesses, made before measuring: Melissa's 3K, Fern's 3.5K, and
+another Fern's 4.5K. The `expr` module is 2,190 bytes, which makes a
+spine owning statements and expressions 4,629. It was proved as the
+spine was:
+- reach.py with SCANNING as the target, with the calculator's
+  streams modelled;
+- every real-ROM comparison with SCANNING's range forbidden.
+
 ## Mistakes, kept
 
 - **The first escape detector** read stale stack.

@@ -28,6 +28,7 @@ And because the loops are ours, BASIC can grow:
 | UDGs | A to U set at boot: the suits at C D H S, arrows, a tick, a rocket… |
 | minding itself | CLEAR, LOAD CODE and POKE can't trample it |
 | faster jumps | GO TO, GO SUB, RETURN and NEXT find their line up to 1.8× faster in long programs |
+| expressions | owned too (`expr`): the ROM's expression evaluator, SCANNING, never runs either |
 
 All of these are keywords the 48K ROM already had and never used
 (CAT, ERASE, FORMAT and MOVE were for the microdrives). You type
@@ -61,6 +62,13 @@ Fern's was 1.5K.
 - **Full: 2,439 bytes.** Every statement passes through your loop,
   whether it's running in a program or being syntax-checked as
   you type.
+- **Expressions too: 4,629 bytes.** The `expr` module adds 2,190,
+  so the ROM's SCANNING never runs. That's SCANNING and every ROM
+  routine from which it could be reached, plus the calculator's
+  dispatcher, because VAL gets in through it. `tools/closure.py`
+  predicted 2.0 to 2.2K before any of it was built. The guesses
+  beforehand were Melissa's 3K, Fern's 3.5K and another Fern's
+  4.5K.
 
 Both are measured, not estimated. A shrinking search swapped
 routines for calls back into the ROM wherever a test suite still
