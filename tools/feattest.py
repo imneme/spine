@@ -45,6 +45,8 @@ for s in [l.rstrip('\n') for l in open(stepf) if l.strip() and not l.startswith(
             zx.type(s[1:] + '\n' if s.startswith('=') else s + '\n', raw=s.startswith('='))
         except speccy.ZXSyntaxError:
             out.append(f'{shown[:40]:40s} ? (refused: the flashing ?)')
+            for _ in range(len(s) + 8):            # and cleared, as a person would: DELETE to the start
+                zx.keystroke('DELETE')
             continue
     zx.wait_ready(max_frames=50 * 60)
     out.append(f'{shown[:40]:40s} {zx.report()}')
