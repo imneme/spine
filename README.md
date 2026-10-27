@@ -27,6 +27,7 @@ And because the loops are ours, BASIC can grow:
 | reports | `0 OK, still yours` and `L BREAK, still yours` |
 | UDGs | A to U set at boot: the suits at C D H S, arrows, a tick, a rocket… |
 | minding itself | CLEAR, LOAD CODE and POKE can't trample it |
+| faster jumps | GO TO, GO SUB, RETURN and NEXT find their line up to 1.8× faster in long programs |
 
 All of these are keywords the 48K ROM already had and never used
 (CAT, ERASE, FORMAT and MOVE were for the microdrives). You type

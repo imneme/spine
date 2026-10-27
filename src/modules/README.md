@@ -17,6 +17,7 @@ entry points).
 | `fnusr-examples` | 90 | three routines that use it (needs fnusr) |
 | `stillyours` | | `0 OK, still yours`, `L BREAK, still yours` |
 | `udg` | 207 | UDGs A to U at boot, and the heart on the © line |
+| `fastlines` | 36 | GO TO, GO SUB, RETURN and NEXT find their line faster: 1.8× on a 300-line program |
 
 The **reports table** costs 435 bytes. It comes with the first
 module that adds a report (erase S, format T, guard U) or rewords
