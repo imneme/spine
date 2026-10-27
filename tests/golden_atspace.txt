@@ -15,4 +15,19 @@ CLS: PRINT AT 1,0;"at";AT 2,0;"y"        0 OK, still yours, 0:2
   | at
   | y
   | 0 OK, still yours, 0:2
+CLS: LET c=PEEK 23631+256*PEEK 23632: PR 0 OK, still yours, 0:3
+  | 11
+  | 0 OK, still yours, 0:3
+PRINT INK 2;"x";AT 5,5;"y";TAB 3;"z"     0 OK, still yours, 0:1
+CLS: LET c=PEEK 23631+256*PEEK 23632: PR 0 OK, still yours, 0:3
+  | 11
+  | 0 OK, still yours, 0:3
+NEW                                      © 1982 Sinclair Research Ltd  +?
+CLS: LET c=PEEK 23631+256*PEEK 23632: PR 0 OK, still yours, 0:3
+  | 11
+  | 0 OK, still yours, 0:3
+CLS: PRINT INK 2;7;CHR$ 172;8;AT 3,2;"at 0 OK, still yours, 0:2
+  | 7 AT 8
+  |   at      tab
+  | 0 OK, still yours, 0:2
 the ROM loops never ran
