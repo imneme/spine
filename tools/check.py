@@ -71,7 +71,7 @@ if not quick:
         stage(f'real ROM {name} {steps}', code == 0 and diffs == 0, out.strip().split('\n')[-1])
 
 code, out = py(os.path.join(T, 'mkguard.py'), P.built('batteries.sym'))
-for t in ('feat', 'guard', 'usr', 'builtins'):
+for t in ('feat', 'guard', 'usr', 'builtins', 'percent'):
     code, out = py(os.path.join(T, 'feattest.py'), P.built('batteries.bin'),
                    '%04X' % P.sym(P.built('batteries.sym'))['SPINE_START'], 'SPINE_COLD',
                    os.path.join(ROOT, 'tests', f'steps_{t}.txt'), '--golden', os.path.join(ROOT, 'tests', f'golden_{t}.txt'),
