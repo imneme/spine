@@ -89,6 +89,9 @@ For looking closer:
   first did.
 - `tools/stackwatch.py` prints the named stack after each step.
 - `tools/runbas.py` runs a .bas file and takes a screenshot.
+- `tools/bench.py` times jumps (FOR/NEXT, GO TO) after 300 lines, on the real ROM and on builds.
+- `tools/closure.py` measures what owning expressions would cost: the routines from which SCANNING can be
+  reached by a way the spine could take, with each RST 28 following only the operations its literal stream names.
 
 ## Rules learned the hard way
 
